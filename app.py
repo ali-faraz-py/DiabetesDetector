@@ -6,9 +6,18 @@ import plotly.express as px
 with open('model.pkl', 'rb') as f:
     model = pickle.load(f)
 
-st.set_page_config(page_title="Diabetes AI", page_icon="🩺")
+st.set_page_config(page_title="Diabetes Detector", page_icon="🩺")
 
 st.title("🏥 Diabetes Risk Diagnostic Tool")
+with st.expander("ℹ️ How to Use & Input Guide"):
+    st.info("""
+    **Enter the patient's details in the sidebar:**
+    * **Glucose:** Plasma glucose concentration (2 hours in an oral glucose tolerance test).
+    * **BMI:** Body Mass Index (weight in kg/(height in m)^2).
+    * **Insulin:** 2-Hour serum insulin (mu U/ml).
+    * **Age:** Age in years.
+    * **Pedigree Function:** A score that determines the risk based on family history.
+    """)
 st.markdown("---")
 
 st.sidebar.header("Model Performance")
@@ -53,6 +62,29 @@ if st.button("Predict Diabetes Risk"):
         st.error(f"⚠️ Prediction: High Risk of Diabetes ({risk_percent:.2%})")
     else:
         st.success(f"✅ Prediction: Low Risk of Diabetes ({risk_percent:.2%})")
+
+    report_text = f"""
+    Diabetes Risk Assessment Report
+    -------------------------------
+    - Pregnancies: {Pregnancies}
+    - Glucose Level: {glucose}
+    - Blood Pressure: {blood_pressure}
+    - Skin Thickness: {skin_thickness}
+    - Insulin Level: {insulin}
+    - BMI: {bmi}
+    - Pedigree Function: {DiabetesPedigreeFunction}
+    - Age: {age}
+
+    -------------------------------
+    FINAL RESULT: {'High Risk' if risk_percent > 0.5 else 'Low Risk'}
+    PROBABILITY: {risk_percent:.2%}
+    """
+    st.download_button(
+        label="📥 Download Full Diagnostic Report",
+        data=report_text,
+        file_name="diabetes_full_report.txt",
+        mime="text/plain"
+    )
 
 st.caption("⚠️ Note: This model has an 80% accuracy rate based on historical data. Always consult a doctor.")
 
