@@ -48,6 +48,7 @@ A professional, machine learning-powered web application built with **Python** a
 
 ## 📂 Project Structure
 
+```text
 DiabetesDetector/
 ├── app.py              # Streamlit Web Application logic
 ├── model.pkl           # Pre-trained Random Forest Model
@@ -55,6 +56,7 @@ DiabetesDetector/
 ├── requirements.txt    # Project dependencies
 ├── .gitattributes      # GitHub language customization
 └── assets/             # Images & Demo GIFs
+```
 
 ## 🧠 Model Insights
 The model achieves an **80.5% accuracy** rate. Below is the **Confusion Matrix** showing how the model performs on unseen data:
