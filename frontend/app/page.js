@@ -65,10 +65,10 @@ export default function Home() {
       </div>
 
       <div className="w-full max-w-xl my-10 h-16 overflow-hidden">
-        <svg
-          viewBox="0 0 600 60"
-          className="w-[200%] h-full pulse-wave"
-          style={{ "--pulse-color": pulseColor }}
+          <svg
+            viewBox="0 0 1200 60"
+            className="w-[200%] h-full pulse-wave"
+            style={{ "--pulse-color": pulseColor }}
         >
           <path
             d="M0 30 C 25 5, 50 5, 75 30 S 125 55, 150 30 S 200 5, 225 30 S 275 55, 300 30 S 350 5, 375 30 S 425 55, 450 30 S 500 5, 525 30 S 575 55, 600 30"
