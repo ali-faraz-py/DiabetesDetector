@@ -13,20 +13,25 @@ const FIELDS = [
   { key: "age", label: "Age", min: 21, max: 81, step: 1, default: 33 },
 ];
 
-const ECG_UNIT = [
-  [0, 30], [20, 30], [28, 22], [36, 30],
-  [60, 30], [68, 34], [74, 6], [80, 52], [88, 30],
-  [110, 30], [122, 20], [134, 20], [146, 30],
-  [200, 30],
-];
+function ecgSegment(o) {
+  return (
+    `L${0 + o},30 ` +
+    `L${20 + o},30 ` +
+    `C${26 + o},30 ${28 + o},20 ${34 + o},20 ` +
+    `C${40 + o},20 ${42 + o},30 ${48 + o},30 ` +
+    `L${60 + o},30 ` +
+    `L${68 + o},34 L${74 + o},6 L${80 + o},52 L${88 + o},30 ` +
+    `L${100 + o},30 ` +
+    `C${112 + o},30 ${118 + o},14 ${130 + o},14 ` +
+    `C${142 + o},14 ${148 + o},30 ${160 + o},30 ` +
+    `L${200 + o},30 `
+  );
+}
 
 function buildEcgPath(repeats, unitWidth) {
-  let d = "";
+  let d = `M0,30 `;
   for (let i = 0; i < repeats; i++) {
-    const offset = i * unitWidth;
-    ECG_UNIT.forEach(([x, y], idx) => {
-      d += i === 0 && idx === 0 ? `M${x + offset},${y} ` : `L${x + offset},${y} `;
-    });
+    d += ecgSegment(i * unitWidth);
   }
   return d.trim();
 }
@@ -96,6 +101,7 @@ export default function Home() {
             stroke="var(--pulse-color)"
             strokeWidth="2.5"
             strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </svg>
       </div>
