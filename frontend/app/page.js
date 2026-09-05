@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const FIELDS = [
   { key: "pregnancies", label: "Pregnancies", min: 0, max: 17, step: 1, default: 3 },
@@ -36,7 +36,55 @@ function buildEcgPath(repeats, unitWidth) {
   return d.trim();
 }
 
-const ECG_PATH = buildEcgPath(6, 200);
+const BEAT_COUNT = 4;
+const UNIT_WIDTH = 200;
+const ECG_PATH = buildEcgPath(BEAT_COUNT, UNIT_WIDTH);
+
+function PulseLine({ color }) {
+  const pathRef = useRef(null);
+  const animRef = useRef(null);
+
+  useEffect(() => {
+    const path = pathRef.current;
+    if (!path) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    const length = path.getTotalLength();
+    path.style.strokeDasharray = `${length}`;
+
+    if (prefersReducedMotion) {
+      path.style.strokeDashoffset = "0";
+      return;
+    }
+
+    animRef.current = path.animate(
+      [{ strokeDashoffset: length }, { strokeDashoffset: 0 }],
+      { duration: 3200, iterations: Infinity, easing: "linear" }
+    );
+
+    return () => animRef.current?.cancel();
+  }, []);
+
+  return (
+    <svg
+      viewBox={`0 0 ${BEAT_COUNT * UNIT_WIDTH} 60`}
+      className="w-full h-full"
+    >
+      <path
+        ref={pathRef}
+        d={ECG_PATH}
+        fill="none"
+        stroke={color}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 export default function Home() {
   const [values, setValues] = useState(
@@ -89,21 +137,8 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="w-full max-w-xl my-10 h-16 overflow-hidden">
-        <svg
-          viewBox="0 0 1200 60"
-          className="w-[200%] h-full pulse-wave"
-          style={{ "--pulse-color": pulseColor }}
-        >
-          <path
-            d={ECG_PATH}
-            fill="none"
-            stroke="var(--pulse-color)"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+      <div className="w-full max-w-xl my-10 h-16">
+        <PulseLine color={pulseColor} />
       </div>
 
       <form
@@ -153,19 +188,6 @@ export default function Home() {
           </p>
         </div>
       )}
-
-      <style jsx>{`
-        .pulse-wave {
-          animation: pulse-scroll 6s linear infinite;
-        }
-        @keyframes pulse-scroll {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .pulse-wave { animation: none; }
-        }
-      `}</style>
     </main>
   );
 }
