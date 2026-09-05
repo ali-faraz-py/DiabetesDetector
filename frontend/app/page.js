@@ -13,6 +13,26 @@ const FIELDS = [
   { key: "age", label: "Age", min: 21, max: 81, step: 1, default: 33 },
 ];
 
+const ECG_UNIT = [
+  [0, 30], [20, 30], [28, 22], [36, 30],
+  [60, 30], [68, 34], [74, 6], [80, 52], [88, 30],
+  [110, 30], [122, 20], [134, 20], [146, 30],
+  [200, 30],
+];
+
+function buildEcgPath(repeats, unitWidth) {
+  let d = "";
+  for (let i = 0; i < repeats; i++) {
+    const offset = i * unitWidth;
+    ECG_UNIT.forEach(([x, y], idx) => {
+      d += i === 0 && idx === 0 ? `M${x + offset},${y} ` : `L${x + offset},${y} `;
+    });
+  }
+  return d.trim();
+}
+
+const ECG_PATH = buildEcgPath(6, 200);
+
 export default function Home() {
   const [values, setValues] = useState(
     Object.fromEntries(FIELDS.map((f) => [f.key, f.default]))
@@ -65,23 +85,16 @@ export default function Home() {
       </div>
 
       <div className="w-full max-w-xl my-10 h-16 overflow-hidden">
-          <svg
-            viewBox="0 0 1200 60"
-            className="w-[200%] h-full pulse-wave"
-            style={{ "--pulse-color": pulseColor }}
+        <svg
+          viewBox="0 0 1200 60"
+          className="w-[200%] h-full pulse-wave"
+          style={{ "--pulse-color": pulseColor }}
         >
           <path
-            d="M0 30 C 25 5, 50 5, 75 30 S 125 55, 150 30 S 200 5, 225 30 S 275 55, 300 30 S 350 5, 375 30 S 425 55, 450 30 S 500 5, 525 30 S 575 55, 600 30"
+            d={ECG_PATH}
             fill="none"
             stroke="var(--pulse-color)"
-            strokeWidth="3"
-            strokeLinecap="round"
-          />
-          <path
-            d="M600 30 C 625 5, 650 5, 675 30 S 725 55, 750 30 S 800 5, 825 30 S 875 55, 900 30 S 950 5, 975 30 S 1025 55, 1050 30 S 1100 5, 1125 30 S 1175 55, 1200 30"
-            fill="none"
-            stroke="var(--pulse-color)"
-            strokeWidth="3"
+            strokeWidth="2.5"
             strokeLinecap="round"
           />
         </svg>
