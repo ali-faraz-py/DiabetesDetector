@@ -283,7 +283,7 @@ export default function Home() {
           </div>
 
           {result.risk_label === "High Risk" && (
-            
+            <a
               href={FIND_DOCTOR_URL}
               target="_blank"
               rel="noopener noreferrer"
