@@ -14,7 +14,6 @@ const FIELDS = [
 ];
 
 const GITHUB_URL = "https://github.com/ali-faraz-py/DiabetesDetector";
-
 const OLADOC_KNOWN_CITIES = ["lahore", "karachi", "islamabad", "peshawar"];
 
 function ecgSegment(o) {
@@ -90,43 +89,6 @@ function PulseLine({ color }) {
   );
 }
 
-function downloadShareCard(result) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 600;
-  canvas.height = 400;
-  const ctx = canvas.getContext("2d");
-
-  const isHigh = result.risk_label === "High Risk";
-  const accent = isHigh ? "#E3A857" : "#7FA98C";
-
-  ctx.fillStyle = "#EDF3EF";
-  ctx.fillRect(0, 0, 600, 400);
-
-  ctx.fillStyle = "#2B3A42";
-  ctx.font = "600 22px Georgia, serif";
-  ctx.textAlign = "center";
-  ctx.fillText("Diabetes Risk Diagnostic", 300, 60);
-
-  ctx.fillStyle = accent;
-  ctx.font = "700 40px Georgia, serif";
-  ctx.fillText(result.risk_label, 300, 190);
-
-  ctx.fillStyle = "#2B3A42";
-  ctx.font = "400 22px sans-serif";
-  ctx.fillText(`${Math.round(result.probability * 100)}% estimated probability`, 300, 230);
-
-  ctx.font = "400 14px sans-serif";
-  ctx.fillStyle = "#2B3A42";
-  ctx.globalAlpha = 0.7;
-  ctx.fillText("Screening estimate only \u2014 not a medical diagnosis.", 300, 340);
-  ctx.globalAlpha = 1;
-
-  const link = document.createElement("a");
-  link.href = canvas.toDataURL("image/png");
-  link.download = "diabetes-risk-result.png";
-  link.click();
-}
-
 function getPosition() {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
@@ -160,7 +122,6 @@ async function resolveDoctorUrl() {
 
     return `https://www.google.com/maps/search/endocrinologist/@${latitude},${longitude},13z`;
   } catch {
-
     return "https://www.google.com/maps/search/endocrinologist+near+me";
   }
 }
@@ -311,26 +272,18 @@ export default function Home() {
             about what these numbers mean for you.
           </p>
 
-          <div className="flex flex-wrap justify-center gap-3 mt-5">
-            <button
-              onClick={handleDownloadReport}
-              className="rounded-full border border-accent-teal text-accent-teal font-sans text-sm px-5 py-2 hover:bg-accent-teal hover:text-white transition-colors"
-            >
-              Download report
-            </button>
-            <button
-              onClick={() => downloadShareCard(result)}
-              className="rounded-full border border-accent-teal text-accent-teal font-sans text-sm px-5 py-2 hover:bg-accent-teal hover:text-white transition-colors"
-            >
-              Download shareable card
-            </button>
-          </div>
+          <button
+            onClick={handleDownloadReport}
+            className="mt-5 rounded-full border border-accent-teal text-accent-teal font-sans text-sm px-5 py-2 hover:bg-accent-teal hover:text-white transition-colors"
+          >
+            Download report
+          </button>
 
           {result.risk_label === "High Risk" && (
             <button
               onClick={handleFindDoctor}
               disabled={findingDoctor}
-              className="mt-4 rounded-full bg-accent-amber text-white font-sans text-sm px-6 py-2 hover:opacity-90 transition-opacity disabled:opacity-60"
+              className="mt-4 rounded-full bg-accent-amber text-white font-sans text-sm px-6 py-2 hover:opacity-90 transition-opacity disabled:opacity-60 block mx-auto"
             >
               {findingDoctor ? "Finding doctors near you..." : "Find an endocrinologist near you"}
             </button>
