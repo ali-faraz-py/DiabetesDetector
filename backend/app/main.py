@@ -11,7 +11,7 @@ app = FastAPI(title="Diabetes Risk Diagnostic API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://YOUR-FRONTEND.vercel.app"],
+    allow_origins=["http://localhost:3000", "https://diabetes-detector.vercel.app"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
