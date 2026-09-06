@@ -14,7 +14,8 @@ const FIELDS = [
 ];
 
 const GITHUB_URL = "https://github.com/ali-faraz-py/DiabetesDetector";
-const FIND_DOCTOR_URL = "https://oladoc.com/pakistan/lahore/endocrinologist";
+
+const OLADOC_KNOWN_CITIES = ["lahore", "karachi", "islamabad", "peshawar"];
 
 function ecgSegment(o) {
   return (
@@ -89,9 +90,6 @@ function PulseLine({ color }) {
   );
 }
 
-// Draws a shareable PNG summarizing the result onto an offscreen canvas,
-// then triggers a download. Colors are hardcoded (not read from CSS vars)
-// because canvas can't resolve CSS custom properties on its own.
 function downloadShareCard(result) {
   const canvas = document.createElement("canvas");
   canvas.width = 600;
@@ -129,6 +127,44 @@ function downloadShareCard(result) {
   link.click();
 }
 
+function getPosition() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("Geolocation not supported"));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      timeout: 8000,
+    });
+  });
+}
+
+async function resolveDoctorUrl() {
+  try {
+    const position = await getPosition();
+    const { latitude, longitude } = position.coords;
+
+    const geoRes = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+    );
+    const geo = await geoRes.json();
+
+    if (geo.countryCode === "PK") {
+      const citySlug = (geo.city || geo.locality || "")
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-");
+      const slug = OLADOC_KNOWN_CITIES.includes(citySlug) ? citySlug : citySlug || "lahore";
+      return `https://oladoc.com/pakistan/${slug}/endocrinologist`;
+    }
+
+    return `https://www.google.com/maps/search/endocrinologist/@${latitude},${longitude},13z`;
+  } catch {
+
+    return "https://www.google.com/maps/search/endocrinologist+near+me";
+  }
+}
+
 export default function Home() {
   const [values, setValues] = useState(
     Object.fromEntries(FIELDS.map((f) => [f.key, f.default]))
@@ -137,6 +173,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [history, setHistory] = useState([]);
+  const [findingDoctor, setFindingDoctor] = useState(false);
 
   const handleChange = (key, val) => {
     setValues((v) => ({ ...v, [key]: val }));
@@ -186,6 +223,13 @@ export default function Home() {
     link.download = "diabetes-risk-report.txt";
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleFindDoctor = async () => {
+    setFindingDoctor(true);
+    const url = await resolveDoctorUrl();
+    window.open(url, "_blank", "noopener,noreferrer");
+    setFindingDoctor(false);
   };
 
   const pulseColor =
@@ -283,14 +327,13 @@ export default function Home() {
           </div>
 
           {result.risk_label === "High Risk" && (
-            <a
-              href={FIND_DOCTOR_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block mt-4 rounded-full bg-accent-amber text-white font-sans text-sm px-6 py-2 hover:opacity-90 transition-opacity"
+            <button
+              onClick={handleFindDoctor}
+              disabled={findingDoctor}
+              className="mt-4 rounded-full bg-accent-amber text-white font-sans text-sm px-6 py-2 hover:opacity-90 transition-opacity disabled:opacity-60"
             >
-              Find an endocrinologist near you
-            </a>
+              {findingDoctor ? "Finding doctors near you..." : "Find an endocrinologist near you"}
+            </button>
           )}
         </div>
       )}
